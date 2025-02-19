@@ -2,6 +2,6 @@
 
 time while true;
 do
-    echo "hello from kf"
+    echo "Hello from $(hostname)"
     sleep 1
 done
