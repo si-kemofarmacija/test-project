@@ -1,0 +1,15 @@
+- name: Setup test server
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Download hello.sh script from GitHub
+      get_url:
+        url: "https://github.com/stojc998/kemofarmacija-test-project/tree/main/test/hello.sh"
+        dest: "/home/ubuntu/hello.sh"
+        mode: '0755'
+
+    - name: Run hello.sh script
+      shell: "/home/ubuntu/hello.sh & sleep 10 && pkill -f hello.sh"
+      async: 10
+      poll: 0
