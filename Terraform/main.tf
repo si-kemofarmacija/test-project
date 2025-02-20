@@ -1,17 +1,60 @@
-
-resource "aws_instance" "test_server" {
-  ami           = "ami-0c55b159cbfafe1f0" # Example AMI (adjust as needed)
-  instance_type = "t2.micro"
-  key_name      = "my-key"
-
-  tags = {
-    Name = "hello-kf-test-srv"
+resource "kubernetes_namespace" "namespace" {
+  metadata {
+    name = var.namespace
   }
+}
 
-  user_data = <<-EOF
-    #!/bin/bash
-    echo "hello-kf-test-srv" > /etc/hostname
-    hostnamectl set-hostname hello-kf-test-srv
-    echo "127.0.0.1 hello-kf-test-srv" >> /etc/hosts
-  EOF
+#Deployment of hello-server
+resource "kubernetes_deployment" "hello_server" {
+  metadata {
+    name      = "hello-server"
+    namespace = kubernetes_namespace.namespace.id
+  }
+  #How the Deployment behaves (replicas, selector, pod template)
+  spec {
+    replicas = var.server_replicas
+    selector {
+      match_labels = {
+        app = "hello-server"
+      }
+    }
+    #The actual Pod definition (metadata, containers, resources)
+    template {
+      metadata {
+        labels = {
+          app = "hello-server"
+        }
+      }
+      #What runs inside the Pod (containers, ports, environment variables)
+      spec {
+        hostname = "hello-kf-test-srv" #Set the hostname
+        subdomain = "hello-kf-test" #Enables internal DNS resolution
+        container {
+          image = "ghcr.io/ansible/ansible-runner:latest"
+          name  = "ansible-runner" # Ansible pre-installed
+          command = ["/bin/sh", "-c", "sleep infinity"] #Keep the pod running
+
+          resources {
+            limits = var.hello_server_resource_limits
+            requests = var.hello_server_resource_requests
+          }
+        }
+      }
+    }
+  }
+}
+
+#Creates ClusterIP service for hello-server
+resource "kubernetes_service" "hello_server" {
+  metadata {
+    name      = "hello-server-service"
+    namespace = kubernetes_namespace.namespace.id
+  }
+  #Must match the deployment labels for hello-server
+  spec {
+    selector = {
+      app = "hello-server"
+    }
+    type = "ClusterIP"
+  }
 }
