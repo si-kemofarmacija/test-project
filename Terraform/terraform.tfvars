@@ -1,1 +1,1 @@
-namespace = "ansible-hello-test"
+namespace = "server-test-app"

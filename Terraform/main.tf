@@ -30,7 +30,7 @@ resource "kubernetes_deployment" "hello_server" {
         hostname = "hello-kf-test-srv" #Set the hostname
         subdomain = "hello-kf-test" #Enables internal DNS resolution
         container {
-          image = "ghcr.io/ansible/ansible-runner:latest"
+          image = "ubuntu:latest"
           name  = "ansible-runner" # Ansible pre-installed
           command = ["/bin/sh", "-c", "sleep infinity"] #Keep the pod running
 
@@ -38,6 +38,20 @@ resource "kubernetes_deployment" "hello_server" {
             limits = var.hello_server_resource_limits
             requests = var.hello_server_resource_requests
           }
+        }
+
+        # DNS Configuration
+        dns_policy = "None"  # Required to use custom DNS configuration
+        dns_config {
+          nameservers = [
+            "8.8.8.8",  # Google DNS server
+            "8.8.4.4"   # Google DNS server
+          ]
+          searches = [
+            "default.svc.cluster.local",
+            "svc.cluster.local",
+            "cluster.local"
+          ]
         }
       }
     }
