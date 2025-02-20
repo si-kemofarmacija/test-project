@@ -43,18 +43,3 @@ resource "kubernetes_deployment" "hello_server" {
     }
   }
 }
-
-#Creates ClusterIP service for hello-server
-resource "kubernetes_service" "hello_server" {
-  metadata {
-    name      = "hello-server-service"
-    namespace = kubernetes_namespace.namespace.id
-  }
-  #Must match the deployment labels for hello-server
-  spec {
-    selector = {
-      app = "hello-server"
-    }
-    type = "ClusterIP"
-  }
-}

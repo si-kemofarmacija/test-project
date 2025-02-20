@@ -1,20 +1,24 @@
-name: "Setup test server inside Kubernetes pod"
-hosts: localhost
-become: no  # No need for sudo inside Kubernetes pod
+---
+- name: "Setup test server inside Kubernetes pod"
+  hosts: localhost
+  become: no  # No need for sudo inside Kubernetes pod
 
-tasks:
-  - name: "Install required packages in ansible-runner pod"
-    shell: |
-      kubectl exec ansible-runner -- sh -c "apt update && apt install -y curl bash"
+  vars:
+    namespace: "ansible-hello-test"
 
-  - name: "Download specific file from GitHub repository in ansible-runner pod"
-    shell: |
-      kubectl exec ansible-runner -- sh -c "curl -L https://github.com/stojc998/kemofarmacija-test-project/raw/main/test/hello.sh -o /workspace/hello.sh"
+  tasks:
+    - name: "Install required packages in ansible-runner pod"
+      shell: |
+        kubectl exec $(kubectl get pods -n {{ namespace }} -l app=hello-server -o jsonpath='{.items[0].metadata.name}') -- sh -c "apt update && apt install -y curl bash"
 
-  - name: "Make hello.sh executable"
-    shell: |
-      kubectl exec ansible-runner -- sh -c "chmod +x /workspace/hello.sh"
+    - name: "Download specific file from GitHub repository in ansible-runner pod"
+      shell: |
+        kubectl exec $(kubectl get pods -n {{ namespace }} -l app=hello-server -o jsonpath='{.items[0].metadata.name}') -- sh -c "curl -L https://github.com/stojc998/kemofarmacija-test-project/raw/main/test/hello.sh -o /workspace/hello.sh"
 
-  - name: "Run hello.sh script for 10s"
-    shell: |
-      kubectl exec ansible-runner -- sh -c "timeout 10 /workspace/hello.sh"
+    - name: "Make hello.sh executable"
+      shell: |
+        kubectl exec $(kubectl get pods -n {{ namespace }} -l app=hello-server -o jsonpath='{.items[0].metadata.name}') -- sh -c "chmod +x /workspace/hello.sh"
+
+    - name: "Run hello.sh script for 10s"
+      shell: |
+        kubectl exec $(kubectl get pods -n {{ namespace }} -l app=hello-server -o jsonpath='{.items[0].metadata.name}') -- sh -c "timeout 10 /workspace/hello.sh"
