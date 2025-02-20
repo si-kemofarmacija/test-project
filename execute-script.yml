@@ -1,15 +1,20 @@
-- name: Setup test server
-  hosts: all
-  become: yes
+name: "Setup test server inside Kubernetes pod"
+hosts: localhost
+become: no  # No need for sudo inside Kubernetes pod
 
-  tasks:
-    - name: Download hello.sh script from GitHub
-      get_url:
-        url: "https://github.com/stojc998/kemofarmacija-test-project/tree/main/test/hello.sh"
-        dest: "/home/ubuntu/hello.sh"
-        mode: '0755'
+tasks:
+  - name: "Install required packages in ansible-runner pod"
+    shell: |
+      kubectl exec ansible-runner -- sh -c "apt update && apt install -y curl bash"
 
-    - name: Run hello.sh script
-      shell: "/home/ubuntu/hello.sh & sleep 10 && pkill -f hello.sh"
-      async: 10
-      poll: 0
+  - name: "Download specific file from GitHub repository in ansible-runner pod"
+    shell: |
+      kubectl exec ansible-runner -- sh -c "curl -L https://github.com/stojc998/kemofarmacija-test-project/raw/main/test/hello.sh -o /workspace/hello.sh"
+
+  - name: "Make hello.sh executable"
+    shell: |
+      kubectl exec ansible-runner -- sh -c "chmod +x /workspace/hello.sh"
+
+  - name: "Run hello.sh script for 10s"
+    shell: |
+      kubectl exec ansible-runner -- sh -c "timeout 10 /workspace/hello.sh"
