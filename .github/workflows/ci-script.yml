@@ -1,0 +1,30 @@
+---
+name: CI for hello.sh
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Capture Assigned Hostname
+        run: |
+          echo "This is the auto hostname:$(hostname)"
+          echo "ACTUAL_HOSTNAME=$(hostname)" >> $GITHUB_ENV
+      - name: Verify Hostname Output
+        run: |
+          cd test
+          echo "Expected Hostname: $ACTUAL_HOSTNAME"
+          chmod +x hello.sh
+          timeout 10s ./hello.sh >> hello.txt || true #|| true prevents the step from failing when the command times out
+          cat hello.txt
+
+          if cat hello.txt | grep -q "Hello from $ACTUAL_HOSTNAME"; then
+            echo "Hostname output is correct."
+          else
+            echo "Hostname output is incorrect."
+            exit 1
+          fi

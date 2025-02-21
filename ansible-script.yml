@@ -1,0 +1,49 @@
+- name: "Setup test server inside Kubernetes pod"
+  hosts: localhost
+  become: no  # No need for sudo inside Kubernetes pod
+
+  vars:
+    namespace: "server-test-app"
+
+  tasks:
+    - name: "Get list of all hello-server pods"
+      shell: |
+        kubectl get pods -n {{ namespace }} -l app=hello-server -o jsonpath='{.items[*].metadata.name}'
+      register: hello_server_pods
+
+    - name: "Install required packages in each hello-server pod"
+      shell: |
+        kubectl exec {{ item }} -n {{ namespace }} -- sh -c "apt update && apt install -y curl bash"
+      loop: "{{ hello_server_pods.stdout.split(' ') }}"
+
+    - name: "Create /workspace directory in each hello-server pod"
+      shell: |
+        kubectl exec {{ item }} -n {{ namespace }} -- sh -c "mkdir -p /workspace"
+      loop: "{{ hello_server_pods.stdout.split(' ') }}"
+
+    - name: "Download specific file from GitHub repository in each hello-server pod"
+      shell: |
+        kubectl exec {{ item }} -n {{ namespace }} -- sh -c "curl -L https://github.com/stojc998/kemofarmacija-test-project/raw/main/test/hello.sh -o /workspace/hello.sh"
+      loop: "{{ hello_server_pods.stdout.split(' ') }}"
+
+    - name: "Make hello.sh executable in each hello-server pod"
+      shell: |
+        kubectl exec {{ item }} -n {{ namespace }} -- sh -c "chmod +x /workspace/hello.sh"
+      loop: "{{ hello_server_pods.stdout.split(' ') }}"
+
+    - name: "Run hello.sh script for 10s in each hello-server pod"
+      shell: |
+        kubectl exec {{ item }} -n {{ namespace }} -- sh -c "timeout 10 /workspace/hello.sh"
+      loop: "{{ hello_server_pods.stdout.split(' ') }}"
+      register: hello_script_results
+      ignore_errors: yes # Allow errors, we handle the ones we care about
+
+    - name: "Check if the hello.sh execution failed (except exit code 124)"
+      fail:
+        msg: "Script failed with an unexpected error in pod {{ item }}."
+      loop: "{{ hello_script_results.results }}"
+      when: "'124' not in item.rc | string"  # Only fail if exit code is not 124
+
+    - name: "Show the results of running the script"
+      debug:
+        var: hello_script_results
