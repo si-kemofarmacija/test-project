@@ -22,6 +22,11 @@ jobs:
           OUTPUT=$(timeout 1s ./hello.sh)
           echo "Script Output: $OUTPUT"
 
+          if [[ -z "$OUTPUT" ]]; then
+            echo "No output from hello.sh."
+            exit 1
+          fi
+
           if echo "$OUTPUT" | grep -q "Hello from $ACTUAL_HOSTNAME"; then
             echo "Hostname output is correct."
           else
