@@ -66,7 +66,7 @@ Execute hello.sh inside the pod for 10 seconds and then terminate it.
 
 ## **4. Cleanup**
 
-Remove all deployed resources. Navigate to Terraform folder
+Remove all deployed resources. Navigate to Terraform folder:
 
 - `cd Terraform/`
 
