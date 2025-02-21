@@ -1,6 +1,6 @@
 - name: "Setup test server inside Kubernetes pod"
   hosts: localhost
-  become: no
+  become: no  # No need for sudo inside Kubernetes pod
 
   vars:
     namespace: "server-test-app"
