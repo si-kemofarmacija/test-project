@@ -19,7 +19,7 @@ jobs:
           cd test
           echo "Expected Hostname: $ACTUAL_HOSTNAME"
           chmod +x hello.sh
-          ./hello.sh
+          timeout 10s ./hello.sh
           #timeout 10s ./hello.sh >> hello.txt
           #echo "Script Output: $OUTPUT"
           #cat hello.txt
