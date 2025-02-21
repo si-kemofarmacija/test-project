@@ -12,7 +12,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Capture Assigned Hostname
         run: |
-          echo "$(hostname)"
+          echo "$(hostname)" >> test.txt
+          cat test.txt
           echo "ACTUAL_HOSTNAME=$(hostname)" >> $GITHUB_ENV
       - name: Verify Hostname Output
         run: |
