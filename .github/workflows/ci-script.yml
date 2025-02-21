@@ -19,9 +19,7 @@ jobs:
           cd test
           echo "Expected Hostname: $ACTUAL_HOSTNAME"
           chmod +x hello.sh
-          #timeout 10s ./hello.sh
-          timeout 10s ./hello.sh >> hello.txt || true
-          #echo "Script Output: $OUTPUT"
+          timeout 10s ./hello.sh >> hello.txt || true #|| true prevents the step from failing when the command times out
           cat hello.txt
 
           if cat hello.txt | grep -q "Hello from $ACTUAL_HOSTNAME"; then
