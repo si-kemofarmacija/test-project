@@ -37,10 +37,10 @@ cd Terraform/
 
 and execute these commands:
 
-terraform init        # Initialize Terraform
+`terraform init        # Initialize Terraform
 terraform validate    # Optional: Validate Terraform code
 terraform plan        # Preview resources before creation
-terraform apply       # Deploy infrastructure
+terraform apply       # Deploy infrastructure`
 
 This will:
 Create a Kubernetes pod (ansible-runner).
