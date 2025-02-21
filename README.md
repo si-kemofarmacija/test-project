@@ -28,19 +28,20 @@ Ensure you have the following installed:
 ### **1️⃣ Start Minikube**
 Before deploying Kubernetes resources, start Minikube:
 
-minikube start
+- `minikube start`
 
 ## **2. Deploy Kubernetes infrastructure**
 
 Move into the Terraform folder
-cd Terraform/
+
+- `cd Terraform/`
 
 and execute these commands:
 
-`terraform init        # Initialize Terraform
-terraform validate    # Optional: Validate Terraform code
-terraform plan        # Preview resources before creation
-terraform apply       # Deploy infrastructure`
+- `terraform init        # Initialize Terraform`
+- `terraform validate    # Optional: Validate Terraform code`
+- `terraform plan        # Preview resources before creation`
+- `terraform apply       # Deploy infrastructure`
 
 This will:
 Create a Kubernetes pod (ansible-runner).
@@ -51,11 +52,12 @@ Assign the hostname hello-kf-test-srv to the pods.
 Navigate to the project root where ansible-script.yml is located.
 
 If you are still in the Terraform folder do:
-cd ..
+
+- `cd ..`
 
 And execute:
 
-ansible-playbook ansible-script.yml
+- `ansible-playbook ansible-script.yml`
 
 The playbook will:
 Install necessary dependencies inside the ansible-runner pod.
@@ -65,10 +67,13 @@ Execute hello.sh inside the pod for 10 seconds and then terminate it.
 ## **4. Cleanup**
 
 Remove all deployed resources. Navigate to Terraform folder
-cd Terraform/
+
+- `cd Terraform/`
 
 and execute:
-terraform destroy
+
+- `terraform destroy`
 
 Stop minikube if you no longer need it:
-minikube stop
+
+- `minikube stop`
