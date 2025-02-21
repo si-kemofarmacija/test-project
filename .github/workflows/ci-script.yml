@@ -12,18 +12,17 @@ jobs:
         uses: actions/checkout@v3
       - name: Capture Assigned Hostname
         run: |
-          echo "To je iz txt file:$(hostname)" >> test.txt
-          cat test.txt
+          echo "This is the auto hostname:$(hostname)"
           echo "ACTUAL_HOSTNAME=$(hostname)" >> $GITHUB_ENV
       - name: Verify Hostname Output
         run: |
           cd test
           echo "Expected Hostname: $ACTUAL_HOSTNAME"
           chmod +x hello.sh
-          timeout 10s ./hello.sh
-          #timeout 10s ./hello.sh >> hello.txt
+          #timeout 10s ./hello.sh
+          timeout 10s ./hello.sh >> hello.txt
           #echo "Script Output: $OUTPUT"
-          #cat hello.txt
+          cat hello.txt
 
           if cat hello.txt | grep -q "Hello from $ACTUAL_HOSTNAME"; then
             echo "Hostname output is correct."
