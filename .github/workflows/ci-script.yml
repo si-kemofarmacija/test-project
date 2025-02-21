@@ -22,7 +22,7 @@ jobs:
           OUTPUT=$(timeout 10s ./hello.sh)
           echo "Script Output: $OUTPUT"
 
-          if [[ "$OUTPUT" == *"Hello from $ACTUAL_HOSTNAME"* ]]; then
+          if echo "$OUTPUT" | grep -q "Hello from $ACTUAL_HOSTNAME"; then
             echo "Hostname output is correct."
           else
             echo "Hostname output is incorrect."
