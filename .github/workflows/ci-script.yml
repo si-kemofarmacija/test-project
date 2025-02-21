@@ -19,7 +19,7 @@ jobs:
           cd test
           echo "Expected Hostname: $ACTUAL_HOSTNAME"
           chmod +x hello.sh
-          OUTPUT=$(timeout 10s ./hello.sh)
+          OUTPUT=$(timeout 1s ./hello.sh)
           echo "Script Output: $OUTPUT"
 
           if echo "$OUTPUT" | grep -q "Hello from $ACTUAL_HOSTNAME"; then
