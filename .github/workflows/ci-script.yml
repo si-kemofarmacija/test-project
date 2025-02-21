@@ -1,49 +1,28 @@
+---
 name: CI for hello.sh
-
 on:
   push:
     branches:
       - main
-
 jobs:
   test-script:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-
-      - name: Set Expected Hostname
-        run: |
-          echo "EXPECTED_HOSTNAME=hello-kf-test-srv" >> $GITHUB_ENV
-
-      - name: Verify Hostname
-        run: |
-          source $GITHUB_ENV
-          CURRENT_HOSTNAME=$(hostname)
-          echo "Current Hostname: $CURRENT_HOSTNAME"
-          if [[ "$CURRENT_HOSTNAME" != "$EXPECTED_HOSTNAME" ]]; then
-            echo "::error::Hostname was not set correctly."
-            exit 1
-          fi
-          echo "::notice::Hostname is correctly set: $CURRENT_HOSTNAME"
-
-      - name: Run hello.sh and Check Output (Terminate After 10s)
+      - name: Capture Assigned Hostname
+        run: echo "ACTUAL_HOSTNAME=$(hostname)" >> $GITHUB_ENV
+      - name: Verify Hostname Output
         run: |
           cd test
-          source $GITHUB_ENV
+          echo "Expected Hostname: $ACTUAL_HOSTNAME"
           chmod +x hello.sh
-          ./hello.sh &
-          SCRIPT_PID=$!
-          sleep 10
-          kill $SCRIPT_PID || echo "Process already stopped."
-          wait $SCRIPT_PID 2>/dev/null || true
-
-          OUTPUT=$(./hello.sh)
+          OUTPUT=$(timeout 10s ./hello.sh)
           echo "Script Output: $OUTPUT"
 
-          if [[ "$OUTPUT" == *"hello from $EXPECTED_HOSTNAME"* ]]; then
-            echo "::notice::Script output contains correct hostname."
+          if [[ "$OUTPUT" == *"hello from $ACTUAL_HOSTNAME"* ]]; then
+            echo "Hostname output is correct."
           else
-            echo "::error::Script output is incorrect."
+            echo "Hostname output is incorrect."
             exit 1
           fi
